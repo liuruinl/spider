@@ -26,6 +26,8 @@ class AmzSpider(Spider):
         self.db = self.client[self.DB_NAME]
         self.base_url = "https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords="
         self.items = []
+    def close(self, reason):
+        self.browser.close()
 
     def start_requests(self):
         # todo reading key words from db here.
@@ -45,26 +47,23 @@ class AmzSpider(Spider):
     def parse(self, response):
         if response.status != 200:
             return
-        amz = Amazon()
-        amz["RequestUrl"] = str(response.url)  # 请求URL
-        amz["SearchWords"] = str(response.url).replace(self.base_url, "")  # 搜索关键词
-
-        amz["PageIndex"] = response.xpath('//*[@id="pagn"]/span[2]/text()').extract()[0]  # 当前页索引
-
         ul = response.css("div #atfResults").css("#s-results-list-atf").css("li")
-
         if ul.__len__() > 0:
             for li in ul.css('li'):
                 if li.attrib.__len__() > 0 and 'data-asin' in li.attrib:
+                    amz = Amazon()
+                    amz["RequestUrl"] = str(response.url)  # 请求URL
+                    amz["SearchWords"] = str(response.url).replace(self.base_url, "")  # 搜索关键词
+                    amz["PageIndex"] = response.xpath('//*[@id="pagn"]/span[2]/text()').extract()[0]  # 当前页索引
                     amz["ASIN"] = li.attrib['data-asin']  # ASIN
                     amz["TotalIndex"] = li.attrib['id']  # 总排名
                     yield amz
+            #todo paging seems not correct.
             le = LinkExtractor(restrict_css="#pagnNextLink")
             links = le.extract_links(response)
             if links:
                 next_url = links[0].url
-                # todo delay a period of time.
-                time.sleep(1)
+                #time.sleep(1)
                 return scrapy.Request(next_url, callback=self.parse)
 
     def parse_1(self, response):

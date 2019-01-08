@@ -8,6 +8,7 @@
 import pymongo
 import datetime
 
+
 class IronEggPipeline(object):
     DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/admin'
     DB_NAME = 'scrapydata'
@@ -25,7 +26,7 @@ class IronEggPipeline(object):
     def process_item(self, item, spider):
         collection = self.db[spider.name]
         try:
-            item.AddTime=str(datetime.datetime.utcnow())
+            item["AddTime"] = str(datetime.datetime.utcnow())
             collection.insert_one(item)
         except BaseException as e:
             print(e)

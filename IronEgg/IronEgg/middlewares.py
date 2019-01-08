@@ -114,9 +114,9 @@ class SeleniumMiddleware(object):
                 spider.browser.get(request.url)
                 #spider.browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             except TimeoutException as e:
-                print('超时')
+                print(e)
                 #spider.browser.execute_script('window.stop()')
-            time.sleep(2)
+            time.sleep(1)
             return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source,
                                 encoding="utf-8", request=request)
 
