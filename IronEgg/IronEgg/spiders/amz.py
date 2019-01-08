@@ -1,6 +1,6 @@
 import scrapy
 from scrapy import Spider, Request
-# from selenium import webdriver
+from selenium import webdriver
 from scrapy.linkextractors import LinkExtractor
 from IronEgg.items import Amazon
 import time
@@ -14,13 +14,13 @@ class AmzSpider(Spider):
     DB_NAME = 'scrapydata'
 
     def __init__(self):
-        # chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument('--headless')
-        # chrome_options.add_argument('--no-sandbox')
-        # chrome_options.add_argument('--disable-gpu')
-        # chrome_options.add_argument('--disable-dev-shm-usage')
-        # self.browser = webdriver.Chrome(chrome_options=chrome_options)
-        # self.browser.set_page_load_timeout(120)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        self.browser = webdriver.Chrome(chrome_options=chrome_options)
+        self.browser.set_page_load_timeout(120)
 
         self.client = pymongo.MongoClient(self.DB_URI)
         self.db = self.client[self.DB_NAME]
@@ -51,7 +51,7 @@ class AmzSpider(Spider):
 
         amz["PageIndex"] = response.xpath('//*[@id="pagn"]/span[2]/text()').extract()[0]  # 当前页索引
 
-        ul = response.xpath('//*[@id="s-results-list-atf"]')
+        ul = response.css("div #atfResults").css("#s-results-list-atf").css("li")
 
         if ul.__len__() > 0:
             for li in ul.css('li'):
