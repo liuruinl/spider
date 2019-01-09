@@ -111,11 +111,12 @@ class SeleniumMiddleware(object):
     def process_request(self, request, spider):
         if spider.name == 'amz':
             try:
+                print(request.url)
                 spider.browser.get(request.url)
-                #spider.browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+                spider.browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             except TimeoutException as e:
                 print(e)
-                #spider.browser.execute_script('window.stop()')
+                spider.browser.execute_script('window.stop()')
             time.sleep(1)
             return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source,
                                 encoding="utf-8", request=request)

@@ -26,7 +26,7 @@ class IronEggPipeline(object):
     def process_item(self, item, spider):
         collection = self.db[spider.name]
         try:
-            item["AddTime"] = str(datetime.datetime.utcnow())
+            item["AddTime"] = datetime.datetime.utcnow()
             collection.insert_one(item)
         except BaseException as e:
             print(e)
