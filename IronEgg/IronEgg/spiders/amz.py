@@ -20,8 +20,14 @@ class AmzSpider(Spider):
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--ignore-certificate-errors')
+       
+        p_r_o_x_y = "23.23.23.23:3128"  # IP:PORT or HOST:PORT
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--proxy-server=http://%s' % p_r_o_x_y)
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.set_page_load_timeout(120)
+        self.browser.get("http://myip.ipip.net/")
         
         self.client = pymongo.MongoClient(self.DB_URI)
         self.db = self.client[self.DB_NAME]
