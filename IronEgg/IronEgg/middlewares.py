@@ -113,7 +113,7 @@ class SeleniumMiddleware(object):
         if spider.name == 'amz':
             try:
                 print(request.url)
-               
+                #spider.browser.get("http://myip.ipip.net/")
                 spider.browser.get(request.url)
                 spider.browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             except TimeoutException as e:

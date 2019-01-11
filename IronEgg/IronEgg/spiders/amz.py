@@ -11,7 +11,7 @@ import pymongo
 class AmzSpider(Spider):
     name = 'amz'
     allowed_domains = ['www.amazon.com']
-    DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/admin'
+    DB_URI = 'mongodb://liurui:rootroot@172.17.0.3:27017/admin'
     DB_NAME = 'scrapydata'
     
     def __init__(self):
@@ -21,13 +21,13 @@ class AmzSpider(Spider):
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--ignore-certificate-errors')
-       
-        p_r_o_x_y = "23.23.23.23:3128"  # IP:PORT or HOST:PORT
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--proxy-server=http://%s' % p_r_o_x_y)
+
+        # p_r_o_x_y = "23.23.23.23:3128"  # IP:PORT or HOST:PORT
+        # chrome_options.add_argument('--proxy-server=http://%s' % p_r_o_x_y)
+        
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.set_page_load_timeout(120)
-        self.browser.get("http://myip.ipip.net/")
+        
         
         self.client = pymongo.MongoClient(self.DB_URI)
         self.db = self.client[self.DB_NAME]
