@@ -106,7 +106,7 @@ class IroneggDownloaderMiddleware(object):
 from scrapy.http import HtmlResponse
 from selenium.common.exceptions import TimeoutException
 import time
-
+import logging
 
 class SeleniumMiddleware(object):
     def process_request(self, request, spider):
@@ -116,7 +116,7 @@ class SeleniumMiddleware(object):
                 spider.browser.get(request.url)
                 spider.browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             except TimeoutException as e:
-                print(e)
+                logging.error(e.msg)
                 spider.browser.execute_script('window.stop()')
             time.sleep(1)
             return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source,

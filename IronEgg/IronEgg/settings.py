@@ -40,7 +40,14 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 
 # Disable cookies (enabled by default)
 COOKIES_ENABLED = False
-LOG_LEVEL = 'ERROR'
+
+#log
+import datetime
+date_now=datetime.datetime.utcnow()
+LOG_LEVEL = 'INFO'
+LOG_FILE  = 'IronEgg/log/{}_{}.log'.format(date_now.day,date_now.hour)
+
+#
 COMMANDS_MODULE = 'IronEgg.commands'
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -62,7 +69,7 @@ COMMANDS_MODULE = 'IronEgg.commands'
 DOWNLOADER_MIDDLEWARES = {
     #    'IronEgg.middlewares.IroneggDownloaderMiddleware': 543,
     # 'IronEgg.middlewares.CustomUserAgentMiddleware': 543,
-    'IronEgg.middlewares.SeleniumMiddleware': 544,
+    'IronEgg.middlewares.SeleniumMiddleware': 200,
     # 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  # 这里要设置原来的scrapy的useragent为None，否者会被覆盖掉
 }
 

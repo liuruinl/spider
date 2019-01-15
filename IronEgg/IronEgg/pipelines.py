@@ -7,24 +7,27 @@
 
 import pymongo
 import datetime
-
+import logging
 
 class IronEggPipeline(object):
-    DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/admin'
-    DB_NAME = 'scrapydata'
+    # DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/admin'
+    # DB_NAME = 'scrapydata'
 
     def __init__(self):
-        self.client = pymongo.MongoClient(self.DB_URI)
-        self.db = self.client[self.DB_NAME]
+        # self.client = pymongo.MongoClient(self.DB_URI)
+        # self.db = self.client[self.DB_NAME]
+        pass
 
     def open_spider(self, spider):
         pass
 
     def close_spider(self, spider):
-        self.client.close()
+        #self.client.close()
+        pass
 
     def process_item(self, item, spider):
-        collection = self.db[spider.name]
+        logging.info("pipelines.process_item")
+        collection = spider.db[spider.name]
         try:
             item["AddTime"] = datetime.datetime.utcnow()
             collection.insert_one(item)
