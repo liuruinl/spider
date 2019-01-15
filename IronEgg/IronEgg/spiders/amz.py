@@ -17,7 +17,6 @@ class AmzSpider(Spider):
     def __init__(self):
         logging.info("amz.init.start")
         self.browser = {}
-        # self.set_driver()
         self.client = pymongo.MongoClient(self.DB_URI)
         self.db = self.client[self.DB_NAME]
         # todo read base-url from db
@@ -43,6 +42,7 @@ class AmzSpider(Spider):
         for url in start_urls:
             # 一个关键字使用一个user-agent 一个ip 更贴合实际
             agent = random.choice(AGENTS_ALL)
+            #self.set_driver(agent,'46.63.58.139:53281')
             self.set_driver(agent)
             yield Request(url=url, callback=self.parse)
     
@@ -108,6 +108,9 @@ class AmzSpider(Spider):
             chrome_options.add_argument('--proxy-server=http://%s' % proxy)
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.set_page_load_timeout(120)
+        # 查看本机ip，查看代理是否起作用
+        self.browser.get("http://httpbin.org/ip")
+        print(self.browser.page_source)
 
 
 AGENTS_ALL = [
