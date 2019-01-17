@@ -31,7 +31,7 @@ class IronEggPipeline(object):
         try:
             item["AddTime"] = datetime.datetime.utcnow()
             collection.insert_one(item)
-        except BaseException as e:
+        except Exception as e:
             print(e)
 
         return item
