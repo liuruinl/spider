@@ -110,7 +110,6 @@ import IronEgg.settings as SETS
 class SeleniumMiddleware(object):
     @staticmethod
     def process_request(request, spider):
-        
         try:
             opts = webdriver.ChromeOptions()
             opts.add_argument('--headless')
@@ -128,30 +127,33 @@ class SeleniumMiddleware(object):
             if cursor is not None:
                 proxies = [c for c in cursor]
             proxy = random.choice(proxies)
-            if proxies.__len__() <  SETS.FETCH_FROM_REMOTE_LIMIT_COUNT:
+            if SETS.FETCH_PROXY_ITSELF == True and proxies.__len__() < SETS.FETCH_FROM_REMOTE_LIMIT_COUNT:
                 spider.db["proxies"].insert_many([{'addr': i} for i in r.get(SETS.FETCH_PROXY_URL).json()])
-            opts.add_argument('--proxy-server=http://%s' % proxy['addr'])
+            # opts.add_argument('--proxy-server=http://%s' % proxy['addr'])
+            # 183.230.177.24:8060
+            opts.add_argument('--proxy-server=http://%s' % '192.168.0.1:8060')
             driver = webdriver.Chrome(chrome_options=opts)
             driver.set_page_load_timeout(5)
-            # driver.get("http://httpbin.org/ip")
-            # print(driver.page_source)
-            driver.get(request.url)
-            status = 200
+            driver.get("http://httpbin.org/ip")
+            print(driver.page_source)
+            # driver.get(request.url)
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             content = driver.page_source.encode('utf-8')
+            
             driver.quit()
         except TimeoutException as e:
             spider.logger.error(e.msg + request.url)
-            status = 504
+            
             content = ""
-            # spider.db["proxies"].remove_one()({"_id": proxy._id})
+            spider.db["proxies"].remove_one()({"_id": proxy['_id']})
             spider.db["proxies_bak"].insert_one(proxy)
+            return HtmlResponse(request.url, encoding='utf-8', body=content, request=request, status=504)
         except Exception as e:
-            status = 500
             content = ""
             print(e)
+            return HtmlResponse(request.url, encoding='utf-8', body=content, request=500)
         
-        return HtmlResponse(request.url, encoding='utf-8', body=content, request=request, status=status)
+        return HtmlResponse(request.url, encoding='utf-8', body=content, request=request)
 
 from scrapy.dupefilter import RFPDupeFilter
 
@@ -163,5 +165,3 @@ class CloseDupeFilter(RFPDupeFilter):
 
 # class CustomRetryMiddleware(RetryMiddleware):
 #    pass
-
-

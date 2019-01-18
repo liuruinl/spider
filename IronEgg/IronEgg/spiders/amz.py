@@ -25,7 +25,7 @@ class AmzSpider(Spider):
         self.logger.info("amz.start_requests.start")
         collection = self.db["words"]
         start_urls = [
-            # 'https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=net%20core%20in%20action'
+            'https://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=net%20core%20in%20action'
             # "http://httpbin.org/user-agent",
             # "http://httpbin.org/user-agent",
             # "http://httpbin.org/user-agent",
@@ -42,8 +42,7 @@ class AmzSpider(Spider):
             # "http://httpbin.org/user-agent",
             # "http://httpbin.org/user-agent",
             #"https://www.liuruinl.com",
-            "https://www.amazon.com/s?k=a&ref=nb_sb_noss"
-        ]
+         ]
         # for doc in collection.find({"owner": 1}):
         #     yield Request(url=self.base_url + doc["keys"], callback=self.parse)  # meta={"id": doc["_id"]}
         for url in start_urls:

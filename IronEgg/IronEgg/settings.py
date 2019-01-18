@@ -116,11 +116,12 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-#proxy api
-FETCH_PROXY_URL="http://www.89ip.cn/tqdl.html?api=1&num=30&port=&address=&isp="
-FETCH_FROM_REMOTE_LIMIT_COUNT=5
-PULL_FROM_DB_COUNT=300
-#agent
+# proxy api
+FETCH_PROXY_URL = "http://www.89ip.cn/tqdl.html?api=1&num=30&port=&address=&isp="
+FETCH_FROM_REMOTE_LIMIT_COUNT = 5
+PULL_FROM_DB_COUNT = 300
+FETCH_PROXY_ITSELF = False
+# agent
 AGENTS_ALL = [
     "Avant Browser/1.2.789rel1 (http://www.avantbrowser.com)",
     "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.0 Safari/532.5",
