@@ -46,7 +46,7 @@ import datetime
 
 date_now = datetime.datetime.utcnow()
 LOG_LEVEL = 'INFO'
-LOG_FILE = 'IronEgg/log/{}_{}_{}.log'.format(date_now.day, date_now.hour, date_now.minute)
+LOG_FILE = 'IronEgg/log/{}_{}_{}.log'.format(date_now.year, date_now.month, date_now.day)
 # duplicate
 DUPEFILTER_CLASS = "IronEgg.middlewares.CloseDupeFilter"
 
@@ -115,9 +115,14 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+# DB
+DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/scrapydata'
+DB_NAME = 'scrapydata'
 
+# amz
+TOTAL_PAGE = 20
 # proxy api
-FETCH_PROXY_URL = "http://www.89ip.cn/tqdl.html?api=1&num=30&port=&address=&isp="
+FETCH_PROXY_URL = ""
 FETCH_FROM_REMOTE_LIMIT_COUNT = 5
 PULL_FROM_DB_COUNT = 300
 FETCH_PROXY_ITSELF = False

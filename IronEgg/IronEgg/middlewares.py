@@ -101,59 +101,69 @@ class IroneggDownloaderMiddleware(object):
         pass
 
 from scrapy.http import HtmlResponse
-from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 import random
 import requests as r
-import IronEgg.settings as SETS
+import IronEgg.settings as sets
 
 class SeleniumMiddleware(object):
     @staticmethod
     def process_request(request, spider):
         try:
+            # todo get proxy from db
+            cursor = spider.db["proxies"].find({"active": {"$gt": 0}}).limit(sets.PULL_FROM_DB_COUNT)
+            proxies = []
+            if cursor is not None:
+                proxies = [c for c in cursor]
+            proxy = random.choice(proxies)
+            if sets.FETCH_PROXY_ITSELF == True and proxies.__len__() < sets.FETCH_FROM_REMOTE_LIMIT_COUNT:
+                spider.db["proxies"].insert_many([{'addr': i} for i in r.get(sets.FETCH_PROXY_URL).json()])
+            
+            if proxy is not None:
+                random_proxy = proxy["addr"]
+            else:
+                spider.logger.critical("there is no proxy existed in in the pool.")
+                return request
             opts = webdriver.ChromeOptions()
             opts.add_argument('--headless')
             opts.add_argument('--no-sandbox')
             opts.add_argument('--disable-gpu')
             opts.add_argument('--disable-dev-shm-usage')
             opts.add_argument('--ignore-certificate-errors')
+            opts.add_argument('blink-settings=imagesEnabled=false')
             # 1 allow all pic；2 disable all pic；3 disable third parts pic
-            opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
-            agent = random.choice(SETS.AGENTS_ALL)
+            # opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+            agent = random.choice(sets.AGENTS_ALL)
             opts.add_argument('user-agent=%s' % agent)
-            # todo get proxy from db
-            cursor = spider.db["proxies"].find({}).limit(SETS.PULL_FROM_DB_COUNT)
-            proxies = []
-            if cursor is not None:
-                proxies = [c for c in cursor]
-            proxy = random.choice(proxies)
-            if SETS.FETCH_PROXY_ITSELF == True and proxies.__len__() < SETS.FETCH_FROM_REMOTE_LIMIT_COUNT:
-                spider.db["proxies"].insert_many([{'addr': i} for i in r.get(SETS.FETCH_PROXY_URL).json()])
-            # opts.add_argument('--proxy-server=http://%s' % proxy['addr'])
-            # 183.230.177.24:8060
-            opts.add_argument('--proxy-server=http://%s' % '192.168.0.1:8060')
+            opts.add_argument('--proxy-server=http://%s' % random_proxy)
             driver = webdriver.Chrome(chrome_options=opts)
-            driver.set_page_load_timeout(5)
-            driver.get("http://httpbin.org/ip")
-            print(driver.page_source)
-            # driver.get(request.url)
+            driver.set_page_load_timeout(30)
+            current_url = request.url
+            if request.meta["first_page"]:
+                driver.get("https://www.amazon.com")
+                if driver.page_source == '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>':
+                    driver.quit()
+                    return request
+                elem = driver.find_element_by_id('twotabsearchtextbox')  # id twotabsearchtextbox  class nav-input
+                elem.send_keys(request.meta["words"])
+                driver.find_element_by_class_name('nav-input').click()
+                driver.refresh()
+                current_url = driver.current_url
+            else:
+                driver.get(request.url)
+                if driver.page_source == '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>':
+                    driver.quit()
+                    return request
+            # driver.get("http://httpbin.org/ip")
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             content = driver.page_source.encode('utf-8')
-            
             driver.quit()
-        except TimeoutException as e:
-            spider.logger.error(e.msg + request.url)
-            
-            content = ""
-            spider.db["proxies"].remove_one()({"_id": proxy['_id']})
-            spider.db["proxies_bak"].insert_one(proxy)
-            return HtmlResponse(request.url, encoding='utf-8', body=content, request=request, status=504)
         except Exception as e:
-            content = ""
             print(e)
-            return HtmlResponse(request.url, encoding='utf-8', body=content, request=500)
-        
-        return HtmlResponse(request.url, encoding='utf-8', body=content, request=request)
+            print(random_proxy)
+            driver.quit()
+            return request
+        return HtmlResponse(current_url, encoding='utf-8', body=content, request=request)
 
 from scrapy.dupefilter import RFPDupeFilter
 
