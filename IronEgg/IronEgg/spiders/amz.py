@@ -3,7 +3,7 @@ from scrapy import Spider, Request
 from scrapy.linkextractors import LinkExtractor
 from IronEgg.items import Amazon
 import pymongo
-import urllib
+
 import IronEgg.settings as sets
 
 class AmzSpider(Spider):
@@ -40,10 +40,11 @@ class AmzSpider(Spider):
         if response.status != 200:
             return
         # print(response.xpath("/html/body/pre/text()").extract()[0])
-        ul = response.css("div #atfResults").css("#s-results-list-atf").css("li")
+        ul = response.css("div #atfResults").css("#s-results-list-atf")
         self.logger.info("ul.len %s" % ul.__len__())
         if ul.__len__() > 0:
             page = response.css("div #pagn span.pagnCur").xpath('text()').extract()
+            current_page_rank = 1
             for li in ul.css('li'):
                 if li.attrib.__len__() > 0 and 'data-asin' in li.attrib:
                     amz = Amazon()
@@ -51,6 +52,9 @@ class AmzSpider(Spider):
                     amz["SearchWords"] = response.meta['words']  # urllib.parse.unquote(str(response.url).replace(self.base_url, ""))  # 搜索关键词
                     amz["ASIN"] = li.attrib['data-asin']  # ASIN
                     amz["TotalIndex"] = li.attrib['id']  # 总排名
+                    if amz["TotalIndex"].split('_'):
+                        amz["TotalRank"] = int(amz["TotalIndex"].split('_')[1]) + 1
+                    amz["CurrentPageRank"] = current_page_rank
                     amz["IsAd"] = False
                     if li.attrib['class'] is not None and li.attrib['class'] != "" and str(li.attrib['class']).find("AdHolder") >= 0:
                         amz["IsAd"] = True
@@ -61,11 +65,23 @@ class AmzSpider(Spider):
                         self.logger.critical("cant find any page, nothing returned !!!")
                 else:
                     self.logger.warning("li.attrib.len is 0")
+                current_page_rank += 1
+            
             if page.__len__() > 0 and int(page[0]) < sets.TOTAL_PAGE:
                 le = LinkExtractor(restrict_css="#pagnNextLink")
                 links = le.extract_links(response)
                 if links:
                     next_url = links[0].url
-                    yield scrapy.Request(next_url, callback=self.parse, dont_filter=True, meta={'first_page': False, 'words': response.meta['words']})
+                    yield scrapy.Request(next_url, callback=self.parse, dont_filter=True,
+                                         meta={'first_page': False,
+                                               'words': response.meta['words'],
+                                               'referer': response.url,
+                                               'proxy': response.meta['proxy']
+                                               })
         else:
-            self.logger.critical("ul.len is %s !!!" % ul.css('li').__len__())
+            yield scrapy.Request(str(response.url), callback=self.parse, dont_filter=True,
+                                 meta={'first_page': False,
+                                       'words': response.meta['words'],
+                                       #'referer': response.url,
+                                       #'proxy': response.meta['proxy']
+                                       })

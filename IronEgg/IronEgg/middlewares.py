@@ -105,6 +105,9 @@ from selenium import webdriver
 import random
 import requests as r
 import IronEgg.settings as sets
+import time
+
+# from seleniumwire import webdriver  # Import from seleniumwire
 
 class SeleniumMiddleware(object):
     @staticmethod
@@ -124,9 +127,14 @@ class SeleniumMiddleware(object):
             else:
                 spider.logger.critical("there is no proxy existed in in the pool.")
                 return request
+            
+            if 'proxy' in request.meta and request.meta['proxy'] is not None:
+                random_proxy = request.meta['proxy']
+            
             opts = webdriver.ChromeOptions()
             opts.add_argument('--headless')
             opts.add_argument('--no-sandbox')
+            opts.add_argument('--incognito')
             opts.add_argument('--disable-gpu')
             opts.add_argument('--disable-dev-shm-usage')
             opts.add_argument('--ignore-certificate-errors')
@@ -137,10 +145,11 @@ class SeleniumMiddleware(object):
             opts.add_argument('user-agent=%s' % agent)
             opts.add_argument('--proxy-server=http://%s' % random_proxy)
             driver = webdriver.Chrome(chrome_options=opts)
-            driver.set_page_load_timeout(30)
+            driver.set_page_load_timeout(180)
             current_url = request.url
             if request.meta["first_page"]:
                 driver.get("https://www.amazon.com")
+                # driver.get('https://www.amazon.com/s/ref=sr_pg_2?rh=i%3Aaps%2Ck%3Apython&page=2&keywords=python&ie=UTF8&qid=1548652794')
                 if driver.page_source == '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>':
                     driver.quit()
                     return request
@@ -148,20 +157,32 @@ class SeleniumMiddleware(object):
                 elem.send_keys(request.meta["words"])
                 driver.find_element_by_class_name('nav-input').click()
                 driver.refresh()
+                
                 current_url = driver.current_url
             else:
+                '''
+                driver.header_overrides = {
+                    #'referer': request.meta["referer"],
+                    'referer':'https://www.amazon.com/ref=nav_logo'
+                }
+                #driver.get("http://httpbin.org/get")
+                #print(driver.page_source)
+                '''
                 driver.get(request.url)
                 if driver.page_source == '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>':
                     driver.quit()
                     return request
-            # driver.get("http://httpbin.org/ip")
+            
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+            time.sleep(1)
             content = driver.page_source.encode('utf-8')
+            request.meta['proxy'] = random_proxy
             driver.quit()
         except Exception as e:
             print(e)
             print(random_proxy)
             driver.quit()
+            request.meta['proxy'] = None
             return request
         return HtmlResponse(current_url, encoding='utf-8', body=content, request=request)
 
