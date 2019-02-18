@@ -116,11 +116,13 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # DB
-DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/scrapydata'
+DB_URI = 'mongodb://liurui:rootroot@172.17.0.3:27017/scrapydata'
 DB_NAME = 'scrapydata'
 
 # amz
 TOTAL_PAGE = 20
+USE_SAME_BROWSER = True
+BLANK_PAGE = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>'
 # proxy api
 FETCH_PROXY_URL = ""
 FETCH_FROM_REMOTE_LIMIT_COUNT = 5

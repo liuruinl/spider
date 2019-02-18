@@ -26,12 +26,12 @@ class AmzSpider(Spider):
         collection = self.db["words"]
         fake_url = "https://www.a.com/"
         start_urls = [
-            # 'https://www.a.com/python '
+             'https://www.a.com/python '
         ]
-        for doc in collection.find({"owner": 1}):
-            yield Request(url=fake_url + doc["keys"], callback=self.parse, meta={'first_page': True, 'words': doc["keys"]})
-            # for url in start_urls:
-            # yield Request(url=url, callback=self.parse, meta={'first_page': True, 'words': 'python'})
+        #for doc in collection.find({"owner": 1}):
+            #yield Request(url=fake_url + doc["keys"], callback=self.parse, meta={'first_page': True, 'words': doc["keys"]})
+        for url in start_urls:
+            yield Request(url=url, callback=self.parse, meta={'first_page': True, 'words': 'python'})
     
     def parse(self, response):
         self.logger.info("amz.parse.start")
@@ -76,7 +76,8 @@ class AmzSpider(Spider):
                                          meta={'first_page': False,
                                                'words': response.meta['words'],
                                                'referer': response.url,
-                                               'proxy': response.meta['proxy']
+                                               'proxy': response.meta['proxy'],
+                                               'browser': response.meta['browser']
                                                })
         else:
             yield scrapy.Request(str(response.url), callback=self.parse, dont_filter=True,
