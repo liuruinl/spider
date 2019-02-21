@@ -23,15 +23,17 @@ class AmzSpider(Spider):
     
     def start_requests(self):
         self.logger.info("amz.start_requests.start")
-        collection = self.db["words"]
         fake_url = "https://www.a.com/"
-        start_urls = [
-            'https://www.a.com/python '
-        ]
-        # for doc in collection.find({"owner": 1}):
-        # yield Request(url=fake_url + doc["keys"], callback=self.parse, meta={'first_page': True, 'words': doc["keys"]})
-        for url in start_urls:
-            yield Request(url=url, callback=self.parse, meta={'first_page': True, 'words': 'python'})
+        if sets.DEBUG:
+            start_urls = [
+                fake_url + 'python '
+            ]
+            for url in start_urls:
+                yield Request(url=url, callback=self.parse, meta={'first_page': True, 'words': 'python'})
+        else:
+            collection = self.db["words"]
+            for doc in collection.find({"owner": 1}):
+                yield Request(url=fake_url + doc["keys"], callback=self.parse, meta={'first_page': True, 'words': doc["keys"]})
     
     def parse(self, response):
         self.logger.info("amz.parse.start")
@@ -66,7 +68,7 @@ class AmzSpider(Spider):
                     else:
                         self.logger.warning("li.attrib.len is 0")
                     current_page_rank += 1
-        
+                
                 if page.__len__() > 0 and int(page[0]) < sets.TOTAL_PAGE:
                     le = LinkExtractor(restrict_css="#pagnNextLink")
                     links = le.extract_links(response)

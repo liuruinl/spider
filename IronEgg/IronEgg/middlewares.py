@@ -167,7 +167,7 @@ class SeleniumMiddleware(object):
         opts.add_argument('--ignore-certificate-errors')
         opts.add_argument('blink-settings=imagesEnabled=false')
         # 1 allow all pic；2 disable all pic；3 disable third parts pic
-        opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+        # opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
         opts.add_argument('user-agent=%s' % random.choice(sets.AGENTS_ALL))
         driver = webdriver.Chrome(chrome_options=opts)
         driver.set_page_load_timeout(180)

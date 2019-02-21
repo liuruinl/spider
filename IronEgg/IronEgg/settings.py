@@ -115,6 +115,8 @@ ITEM_PIPELINES = {
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
+# True for debugging that uses low-dependencies
+DEBUG = True
 # DB
 DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/scrapydata'
 DB_NAME = 'scrapydata'
