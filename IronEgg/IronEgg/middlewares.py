@@ -103,61 +103,24 @@ class IroneggDownloaderMiddleware(object):
 from scrapy.http import HtmlResponse
 from selenium import webdriver
 import random
-import requests as r
 import IronEgg.settings as sets
-import time
-
-# from seleniumwire import webdriver  # Import from seleniumwire
 
 class SeleniumMiddleware(object):
     @staticmethod
     def process_request(request, spider):
         driver = 1
         try:
-            if sets.USE_SAME_BROWSER and 'browser' in request.meta and request.meta['browser'] is not None:
-                driver = request.meta['browser']
-            else:
-                if 'proxy' in request.meta and request.meta['proxy'] is not None:
-                    random_proxy = request.meta['proxy']
-                else:
-                    # todo get proxy from db
-                    cursor = spider.db["proxies"].find({"active": {"$gt": 0}}).limit(sets.PULL_FROM_DB_COUNT)
-                    if cursor is not None:
-                        proxy = random.choice([c for c in cursor])
-                        # if sets.FETCH_PROXY_ITSELF == True and proxies.__len__() < sets.FETCH_FROM_REMOTE_LIMIT_COUNT:
-                        # spider.db["proxies"].insert_many([{'addr': i} for i in r.get(sets.FETCH_PROXY_URL).json()])
-                        if proxy is not None:
-                            random_proxy = proxy["addr"]
-                        else:
-                            spider.logger.critical("there is no proxy in the pool.")
-                            return request
-                    else:
-                        spider.logger.critical("there is no proxy in the pool.")
-                        return request
-                opts = webdriver.ChromeOptions()
-                opts.add_argument('--headless')
-                opts.add_argument('--no-sandbox')
-                opts.add_argument('--incognito')
-                opts.add_argument('--disable-gpu')
-                opts.add_argument('--disable-dev-shm-usage')
-                opts.add_argument('--ignore-certificate-errors')
-                opts.add_argument('blink-settings=imagesEnabled=false')
-                # 1 allow all pic；2 disable all pic；3 disable third parts pic
-                # opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
-                opts.add_argument('user-agent=%s' % random.choice(sets.AGENTS_ALL))
-                opts.add_argument('--proxy-server=http://%s' % random_proxy)
-                driver = webdriver.Chrome(chrome_options=opts)
-                driver.set_page_load_timeout(180)
+            driver = SeleniumMiddleware.get_chrome(request, spider)
+            if driver is None:
+                return request
             current_url = request.url
             if request.meta["first_page"]:
                 driver.get("https://www.amazon.com")
-                # driver.get('https://www.amazon.com/s/ref=sr_pg_2?rh=i%3Aaps%2Ck%3Apython&page=2&keywords=python&ie=UTF8&qid=1548652794')
                 if driver.page_source == sets.BLANK_PAGE:
                     driver.quit()
-                    request.meta['proxy'] = None
-                    request.meta['browser'] = None
+                    SeleniumMiddleware.clear_request_meta(request)
                     return request
-                elem = driver.find_element_by_id('twotabsearchtextbox')  # id twotabsearchtextbox  class nav-input
+                elem = driver.find_element_by_id('twotabsearchtextbox')
                 elem.send_keys(request.meta["words"])
                 driver.find_element_by_class_name('nav-input').click()
                 driver.refresh()
@@ -166,24 +129,56 @@ class SeleniumMiddleware(object):
                 driver.get(request.url)
                 if driver.page_source == sets.BLANK_PAGE:
                     driver.quit()
-                    request.meta['proxy'] = None
-                    request.meta['browser'] = None
+                    SeleniumMiddleware.clear_request_meta(request)
                     return request
             driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             content = driver.page_source.encode('utf-8')
-            request.meta['proxy'] = random_proxy
-            request.meta['browser'] = driver
-            driver.quit()
+            if not sets.USE_THE_SAME_BROWSER:
+                driver.quit()
         except Exception as e:
             spider.logger.critical(e)
-            # print(e)
-            # print(random_proxy)
             if driver is not None and driver != 1:
                 driver.quit()
-            request.meta['proxy'] = None
-            request.meta['browser'] = None
+                SeleniumMiddleware.clear_request_meta(request)
             return request
         return HtmlResponse(current_url, encoding='utf-8', body=content, request=request)
+    
+    @staticmethod
+    def get_chrome(request, spider):
+        
+        if sets.USE_THE_SAME_BROWSER and 'browser' in request.meta and request.meta['browser'] is not None:
+            return request.meta['browser']
+        
+        opts = webdriver.ChromeOptions()
+        if sets.USE_PROXY:
+            if 'proxy' in request.meta and request.meta['proxy'] is not None:
+                random_proxy = request.meta['proxy']
+            else:
+                cursor = spider.db["proxies"].find({"active": {"$gt": 0}}).limit(sets.PULL_FROM_DB_COUNT)
+                random_proxy = random.choice([c for c in cursor])["addr"]
+            opts.add_argument('--proxy-server=http://%s' % random_proxy)
+            request.meta['proxy'] = random_proxy
+        
+        opts.add_argument('--headless')
+        opts.add_argument('--no-sandbox')
+        opts.add_argument('--incognito')
+        opts.add_argument('--disable-gpu')
+        opts.add_argument('--disable-dev-shm-usage')
+        opts.add_argument('--ignore-certificate-errors')
+        opts.add_argument('blink-settings=imagesEnabled=false')
+        # 1 allow all pic；2 disable all pic；3 disable third parts pic
+        opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
+        opts.add_argument('user-agent=%s' % random.choice(sets.AGENTS_ALL))
+        driver = webdriver.Chrome(chrome_options=opts)
+        driver.set_page_load_timeout(180)
+        
+        request.meta['browser'] = driver
+        return driver
+    
+    @staticmethod
+    def clear_request_meta(request):
+        request.meta['proxy'] = None
+        request.meta['browser'] = None
 
 from scrapy.dupefilter import RFPDupeFilter
 
