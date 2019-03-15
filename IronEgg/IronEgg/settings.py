@@ -125,7 +125,7 @@ DB_NAME = 'scrapydata'
 TOTAL_PAGE = 20
 USE_THE_SAME_BROWSER = True
 BLANK_PAGE = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>'
-PARSE_V = 1
+PARSE_V = 2
 # proxy api
 USE_PROXY = False
 FETCH_PROXY_URL = ""

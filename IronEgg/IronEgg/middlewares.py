@@ -120,10 +120,21 @@ class SeleniumMiddleware(object):
                     driver.quit()
                     SeleniumMiddleware.clear_request_meta(request)
                     return request
-                elem = driver.find_element_by_id('twotabsearchtextbox')
-                elem.send_keys(request.meta["words"])
-                driver.find_element_by_class_name('nav-input').click()
-                driver.refresh()
+                try:
+                    driver.find_element_by_id('nav-packard-glow-loc-icon').click() # Sets delivery address.
+                    driver.find_element_by_id('GLUXZipUpdateInput').send_keys(20001)
+                    driver.find_element_by_id("GLUXZipUpdate").click()
+                    driver.find_element_by_name("glowDoneButton").click()
+
+                    search_box = driver.find_element_by_id('twotabsearchtextbox')# Starts searching.
+                    search_box.send_keys(request.meta["words"])
+                    driver.find_element_by_class_name('nav-input').click()
+
+                    driver.refresh()
+                except Exception as e:
+                    spider.logger.critical(e)
+                    from scrapy import cmdline
+                    return # if rises an error stop crawl.
                 current_url = driver.current_url
             else:
                 driver.get(request.url)

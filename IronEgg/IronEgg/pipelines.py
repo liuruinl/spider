@@ -8,6 +8,8 @@
 import pymongo
 import datetime
 import logging
+import IronEgg.settings as sets
+
 
 class IronEggPipeline(object):
     # DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/admin'
@@ -22,16 +24,19 @@ class IronEggPipeline(object):
         pass
 
     def close_spider(self, spider):
-        #self.client.close()
+        # self.client.close()
         pass
 
     def process_item(self, item, spider):
         logging.info("pipelines.process_item")
-        collection = spider.db[spider.name]
-        try:
-            item["AddTime"] = datetime.datetime.utcnow()
-            collection.insert_one(item)
-        except Exception as e:
-            print(e)
-
+        item["AddTime"] = datetime.datetime.utcnow()
+        if sets.DEBUG:
+            print(item)
+        else:
+            try:
+                collection = spider.db[spider.name]
+                item["AddTime"] = datetime.datetime.utcnow()
+                collection.insert_one(item)
+            except Exception as e:
+                logging.critical(e)
         return item

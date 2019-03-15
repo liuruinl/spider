@@ -1,0 +1,20 @@
+version: 3
+services:
+  web:
+    build:./webapp_dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - /webapp:/code
+
+  scrapy:
+    build:./scrapy-dockerfile
+    image:liuruinl/scrapy
+
+  mongo:
+    image:mongo:3.6
+    ports:
+      - "27017:27017"
+    volumes:
+      - /home/liurui/data/db:/data/db
+      - /home/liurui/data/configdb:/data/configdb
