@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for IronEgg project
+# Scrapy settings for iron project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,10 +9,10 @@
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'IronEgg'
+BOT_NAME = 'iron'
 
-SPIDER_MODULES = ['IronEgg.spiders']
-NEWSPIDER_MODULE = 'IronEgg.spiders'
+SPIDER_MODULES = ['iron.spiders']
+NEWSPIDER_MODULE = 'iron.spiders'
 
 # ----------- selenium参数配置 -------------
 # SELENIUM_TIMEOUT = 25           # selenium浏览器的超时时间，单位秒
@@ -22,7 +22,7 @@ NEWSPIDER_MODULE = 'IronEgg.spiders'
 #
 # USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'IronEgg (+http://www.yourdomain.com)'
+# USER_AGENT = 'iron (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -46,12 +46,12 @@ import datetime
 
 date_now = datetime.datetime.utcnow()
 LOG_LEVEL = 'INFO'
-LOG_FILE = 'IronEgg/log/{}_{}_{}.log'.format(date_now.year, date_now.month, date_now.day)
+LOG_FILE = 'iron/log/{}_{}_{}.log'.format(date_now.year, date_now.month, date_now.day)
 # duplicate
-DUPEFILTER_CLASS = "IronEgg.middlewares.CloseDupeFilter"
+DUPEFILTER_CLASS = "iron.middlewares.CloseDupeFilter"
 
 # command
-COMMANDS_MODULE = 'IronEgg.commands'
+COMMANDS_MODULE = 'iron.commands'
 
 # retry
 RETRY_ENABLED = True
@@ -76,9 +76,9 @@ RETRY_HTTP_CODES: [500, 502, 503, 504, 408]
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    #    'IronEgg.middlewares.IroneggDownloaderMiddleware': 543,
-    # 'IronEgg.middlewares.CustomUserAgentMiddleware': 543,
-    'IronEgg.middlewares.SeleniumMiddleware': 200,
+    #    'iron.middlewares.IroneggDownloaderMiddleware': 543,
+    # 'iron.middlewares.CustomUserAgentMiddleware': 543,
+    'iron.middlewares.SeleniumMiddleware': 200,
     # 'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,  # 这里要设置原来的scrapy的useragent为None，否者会被覆盖掉
 }
 
@@ -91,7 +91,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'IronEgg.pipelines.IronEggPipeline': 300,
+    'iron.pipelines.IronPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

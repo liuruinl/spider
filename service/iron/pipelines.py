@@ -8,10 +8,10 @@
 import pymongo
 import datetime
 import logging
-import IronEgg.settings as sets
+import iron.settings as sets
 
 
-class IronEggPipeline(object):
+class IronPipeline(object):
     # DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/admin'
     # DB_NAME = 'scrapydata'
 

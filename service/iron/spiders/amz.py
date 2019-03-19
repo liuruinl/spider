@@ -1,10 +1,10 @@
 import scrapy
 from scrapy import Spider, Request
 from scrapy.linkextractors import LinkExtractor
-from IronEgg.items import Amazon
+from iron.items import Amazon
 import pymongo
 import re
-import IronEgg.settings as sets
+import iron.settings as sets
 
 
 class AmzSpider(Spider):

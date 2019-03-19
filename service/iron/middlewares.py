@@ -8,7 +8,7 @@
 from scrapy import signals
 
 
-class IroneggSpiderMiddleware(object):
+class IronSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -56,7 +56,7 @@ class IroneggSpiderMiddleware(object):
         pass
 
 
-class IroneggDownloaderMiddleware(object):
+class IronDownloaderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
@@ -106,7 +106,7 @@ class IroneggDownloaderMiddleware(object):
 from scrapy.http import HtmlResponse
 from selenium import webdriver
 import random
-import IronEgg.settings as sets
+import iron.settings as sets
 
 
 class SeleniumMiddleware(object):
