@@ -2,6 +2,11 @@
 *.swp
 .ipynb_checkpoints/
 
+#webapp
+webapp/.idea/
+webapp/__pycache__/
+webapp/venv/
+
 cscope.out
 download_file/
 data_utf8.json
