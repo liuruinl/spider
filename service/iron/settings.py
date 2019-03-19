@@ -118,7 +118,7 @@ ITEM_PIPELINES = {
 # True for debugging that uses low-dependencies
 DEBUG = True
 # DB
-DB_URI = 'mongodb://liurui:rootroot@172.17.0.2:27017/scrapydata'
+DB_URI = 'mongodb://mongo:27017/scrapydata'
 DB_NAME = 'scrapydata'
 
 # amz
@@ -126,6 +126,7 @@ TOTAL_PAGE = 20
 USE_THE_SAME_BROWSER = True
 BLANK_PAGE = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>'
 PARSE_V = 2
+USE_DELIVERY_ADDRESS =True
 # proxy api
 USE_PROXY = False
 FETCH_PROXY_URL = ""

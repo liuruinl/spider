@@ -38,6 +38,7 @@ class AmzSpider(Spider):
                               meta={'first_page': True, 'words': doc["keys"]})
 
     def parse(self, response):
+
         self.logger.info("amz.parse.start")
         if response is None:
             return

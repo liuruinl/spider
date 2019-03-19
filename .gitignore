@@ -116,5 +116,5 @@ coverage.xml
 docs/_build/
 
 #cus
-IronEgg/.idea
-IronEgg/venv
+service/.idea
+service/venv
