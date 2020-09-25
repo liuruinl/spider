@@ -185,6 +185,14 @@ class SeleniumMiddleware(object):
         # 1 allow all pic；2 disable all pic；3 disable third parts pic
         # opts.add_experimental_option('prefs', {'profile.default_content_setting_values': {'images': 2}})
         opts.add_argument('user-agent=%s' % random.choice(sets.AGENTS_ALL))
+        opts.add_argument("disable-cache")
+        opts.add_experimental_option('excludeSwitches', ['enable-logging'])
+        ##INFO = 0
+        ##WARNING = 1
+        ##LOG_ERROR = 2
+        ##LOG_FATAL = 3
+        ##default is 0
+        opts.add_argument('log-level=3')
         driver = webdriver.Chrome(chrome_options=opts)
         driver.set_page_load_timeout(180)
 
